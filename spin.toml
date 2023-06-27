@@ -1,0 +1,68 @@
+spin_manifest_version = 2
+
+[application]
+name = "behind-the-scenes"
+version = "0.2.0"
+authors = ["Rajat Jindal <rajatjindal83@gmail.com>"]
+description = ""
+
+[variables]
+allowed_channel = { required = true, secret = true }
+trigger_on_emoji_code = { default = "shipit" }
+slack_token = { required = true, secret = true }
+slack_signing_secret = { required = true, secret = true }
+
+### configure component for UI
+[[trigger.http]]
+route = "/..."
+component = "fileserver-static"
+
+[component.fileserver-static]
+source = { url = "https://github.com/fermyon/spin-fileserver/releases/download/v0.2.0/spin_static_fs.wasm", digest = "sha256:1342e1b51f00ba3f9f5c96821f4ee8af75a8f49ca024a8bc892a3b74bbf53df2" }
+files = [ { source = "ui/.output/public/", destination = "/" } ]
+
+[component.fileserver-static.build]
+command = "cd ui && yarn install && yarn generate && cd -"
+
+### configure component for backend
+[[trigger.http]]
+route = "/api/..."
+component = "behind-the-scenes"
+
+[component.behind-the-scenes]
+source = "api/main.wasm"
+allowed_outbound_hosts = ["https://slack.com", "https://files.slack.com"]
+key_value_stores = ["default"]
+
+[component.behind-the-scenes.variables]
+trigger_on_emoji_code = "{{ trigger_on_emoji_code }}"
+allowed_channel = "{{ allowed_channel }}"
+slack_token = "{{ slack_token }}"
+slack_signing_secret = "{{ slack_signing_secret }}"
+[component.behind-the-scenes.build]
+command = "cd api && tinygo build -target=wasi -tags=purego -no-debug -o main.wasm main.go && cd -"
+watch = ["**/*.go", "go.mod"]
+
+### configure component for KV explorer
+[[trigger.http]]
+route = "/internal/kv-explorer/..."
+component = "kv-explorer"
+
+[component.kv-explorer]
+source = { url = "https://github.com/radu-matei/spin-kv-explorer/releases/download/v0.8.0/spin-kv-explorer.wasm", digest = "sha256:e1667e756004000913d869b72db600fb2675f4358c6f0cc2581dfa869e56073c" }
+key_value_stores = ["default"]
+
+## streaming api
+[[trigger.http]]
+route = "/streaming-api/..."
+component = "streaming-api"
+
+[component.streaming-api]
+source = "streaming-api/target/wasm32-wasi/release/streaming_api.wasm"
+allowed_outbound_hosts = ["https://files.slack.com"]
+key_value_stores = ["default"]
+[component.streaming-api.variables]
+slack_token = "{{ slack_token }}"
+[component.streaming-api.build]
+command = "cd streaming-api && cargo build --target wasm32-wasi --release && cd -"
+watch = ["src/**/*.rs", "Cargo.toml"]

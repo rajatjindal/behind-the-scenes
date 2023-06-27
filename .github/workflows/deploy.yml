@@ -1,0 +1,64 @@
+name: Deploy Behind the Scenes
+on:
+  push:
+    branches:
+      - main
+      - variables
+    tags:
+      - "v*"
+
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: setup spin
+        uses: fermyon/actions/spin/setup@v1
+        with:
+          github_token: ${{ github.token }}
+          plugins: cloud
+          version: v2.0.1
+
+      - name: Install latest Rust stable toolchain
+        shell: bash
+        run: |
+          rustup toolchain install 1.73 --component clippy --component rustfmt
+          rustup default 1.73
+
+      - name: "Install Wasm Rust target"
+        run: rustup target add wasm32-wasi && rustup target add wasm32-unknown-unknown
+        shell: bash
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "${{ runner.os }}-full-${{ hashFiles('./streaming-api/Cargo.lock') }}"
+
+      - name: "Install Go"
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.20"
+
+      - name: "Install TinyGo"
+        uses: rajatjindal/setup-actions/tinygo@v0.0.1
+        with:
+          version: 'v0.28.1'
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 19
+
+      - name: build and deploy
+        uses: fermyon/actions/spin/deploy@v1
+        id: deploy
+        with:
+          fermyon_token: ${{ secrets.FERMYON_CLOUD_TOKEN }}
+          manifest_file: spin.toml
+          variables: |-
+            allowed_channel=${{ secrets.ALLOWED_CHANNEL }}
+            trigger_on_emoji_code=slats
+            slack_token=${{ secrets.SLACK_TOKEN }}
+            slack_signing_secret=${{ secrets.SLACK_SIGNING_SECRET }}
+

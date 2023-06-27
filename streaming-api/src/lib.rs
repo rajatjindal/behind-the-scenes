@@ -1,0 +1,90 @@
+use spin_sdk::http_component;
+
+use futures::StreamExt;
+use anyhow::{Result, anyhow};
+use futures::SinkExt;
+use spin_sdk::{
+    key_value::Store,
+    variables,
+    http::{self, Headers, IncomingRequest, OutgoingResponse, ResponseOutparam, OutgoingRequest, Method, Scheme, IncomingResponse}
+};
+use url::Url;
+use serde::{Deserialize, Serialize};
+
+/// Send an HTTP request and return the response.
+#[http_component]
+async fn send_outbound(req: IncomingRequest, res: ResponseOutparam) {
+    get_and_stream_imagefile(req, res).await.unwrap();
+}
+
+#[derive(Clone, Debug, Default, Deserialize, Serialize)]
+#[serde(deny_unknown_fields, rename_all = "camelCase")]
+pub struct Post {
+    pub msg: String,
+    pub timestamp: String,
+    pub image_ids: Vec<String>,
+    pub image_map: std::collections::HashMap<String, String>,
+    pub approved: bool,
+}
+
+async fn get_and_stream_imagefile(req: IncomingRequest, res: ResponseOutparam) -> Result<()> {
+    let (post_id, image_id) = get_post_id_and_image_id_from_url(req.path_with_query().unwrap_or_default());
+    
+    let store = Store::open_default()?;
+    let raw_post = store.get(format!("post:{post_id}").as_str())?.unwrap();
+    
+    let post: Post = serde_json::from_slice(&raw_post)?;
+    let url = post.image_map.get(image_id.as_str()).unwrap();
+
+    let token = variables::get("slack_token").unwrap();
+    let url = Url::parse(url).unwrap();
+    let outgoing_request = OutgoingRequest::new(
+        &Method::Get,
+        Some(url.path()),
+        Some(&match url.scheme() {
+            "http" => Scheme::Http,
+            "https" => Scheme::Https,
+            scheme => Scheme::Other(scheme.into()),
+        }),
+        Some(url.authority()),
+        &Headers::new(&[(
+            "authorization".to_string(),
+            format!("Bearer {token}").as_bytes().to_vec(),
+        )]),
+    );
+
+    let response = http::send::<_, IncomingResponse>(outgoing_request).await?;
+
+    let status = response.status();
+    if status != 200 {
+        return Err(anyhow!(format!("failed to fetch image from slack. expected 200, got status code {}", status)));
+    }
+
+    let mut stream = response.take_body_stream();
+
+    let out_response = OutgoingResponse::new(
+        status,
+        &Headers::new(&[(
+            "content-type".to_string(),
+            b"application/octet-stream".to_vec(),
+        )]),
+    );
+
+    let mut body = out_response.take_body();
+    res.set(out_response);
+
+    while let Some(chunk) = stream.next().await {
+        body.send(chunk?).await?;
+    }
+
+    Ok(())
+}
+
+fn get_post_id_and_image_id_from_url(path_and_query: String) -> (String, String) {
+    let path = path_and_query.replace("/streaming-api/post/", "");
+    let parts: Vec<&str> = path.split("/").collect();
+    let post_id = parts[0];
+    let image_id = parts[2];
+
+    return (post_id.to_string(), image_id.to_string())
+}
