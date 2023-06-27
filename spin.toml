@@ -1,0 +1,19 @@
+spin_manifest_version = "1"
+authors = ["Rajat Jindal <rajatjindal83@gmail.com>"]
+description = ""
+name = "pets-of-fermyon"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[[component]]
+id = "pets-of-fermyon"
+source = "main.wasm"
+allowed_http_hosts = ["https://slack.com", "https://bsky.social"]
+key_value_stores = ["default"]
+[component.trigger]
+route = "/..."
+[component.config]
+trigger_on_emoji_code = "anger"
+[component.build]
+command = "tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go"
+watch = ["**/*.go", "go.mod"]
