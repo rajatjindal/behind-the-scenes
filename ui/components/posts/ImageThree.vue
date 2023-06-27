@@ -1,0 +1,33 @@
+<template>
+  <div class="h-64 w-full mt-5 p-0.5">
+    <div class="flex h-full w-full">
+      <div class="w-1/2 h-full border border-gray-300 rounded-l-xl overflow-hidden">
+        <img :src="'data:image/png;base64,' + imageIds[0]" id="1" class="h-full w-full" />
+      </div>
+      <div class="flex w-1/2 flex-col ml-0.5">
+        <div class="h-1/2 border border-gray-300 overflow-hidden rounded-tr-xl">
+          <img
+            class="h-full w-full"
+            :src="'data:image/png;base64,' + imageIds[0]"
+            id="2"
+          />
+        </div>
+        <div
+          class="h-1/2 border border-gray-300 overflow-hidden rounded-br-xl mt-0.5"
+        >
+          <img
+            class="h-full w-full"
+            :src="'data:image/png;base64,' + imageIds[0]"
+            id="3"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+const props = defineProps({
+	imageIds: { type: Array<string>, required: true },
+})
+</script>

@@ -1,0 +1,34 @@
+spin_manifest_version = "1"
+authors = ["Rajat Jindal <rajatjindal83@gmail.com>"]
+description = ""
+name = "behind-the-scenes"
+trigger = { type = "http", base = "/" }
+version = "0.1.0"
+
+[variables]
+allowed_channel = { required = true, secret = true }
+trigger_on_emoji_code = { default = "slats" }
+
+[[component]]
+source = { url = "https://github.com/fermyon/spin-fileserver/releases/download/v0.0.1/spin_static_fs.wasm", digest = "sha256:650376c33a0756b1a52cad7ca670f1126391b79050df0321407da9c741d32375" }
+id = "fileserver_static"
+files = [ { source = "ui/.output/public/", destination = "/" } ]
+[component.trigger]
+route = "/..."
+[component.build]
+command = "cd ui && yarn install && yarn generate && cd -"
+
+[[component]]
+id = "behind-the-scenes"
+source = "main.wasm"
+allowed_http_hosts = ["https://slack.com", "https://bsky.social", "https://files.slack.com", "https://api.twitter.com", "https://upload.twitter.com"]
+key_value_stores = ["default"]
+[component.trigger]
+route = "/api/..."
+[component.config]
+trigger_on_emoji_code = "{{ trigger_on_emoji_code }}"
+allowed_channel = "{{ allowed_channel }}"
+[component.build]
+command = "tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go"
+watch = ["**/*.go", "go.mod"]
+
