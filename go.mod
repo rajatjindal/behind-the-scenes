@@ -5,7 +5,6 @@ go 1.20
 require (
 	github.com/bluesky-social/indigo v0.0.0-20230626215439-14a90751daf3
 	github.com/fermyon/spin/sdk/go v1.2.1
-	github.com/sirupsen/logrus v1.9.4-0.20230606125235-dd1b4c2e81af
 	github.com/slack-go/slack v0.12.2
 	gopkg.in/yaml.v2 v2.4.0
 )
