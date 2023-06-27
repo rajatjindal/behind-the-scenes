@@ -8,7 +8,7 @@ version = "0.1.0"
 [[component]]
 id = "pets-of-fermyon"
 source = "main.wasm"
-allowed_http_hosts = ["https://slack.com", "https://bsky.social"]
+allowed_http_hosts = ["https://slack.com", "https://bsky.social", "https://files.slack.com"]
 key_value_stores = ["default"]
 [component.trigger]
 route = "/..."

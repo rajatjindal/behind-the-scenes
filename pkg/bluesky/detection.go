@@ -21,7 +21,7 @@ func DetectFacets(text string) []*appbsky.RichtextFacet {
 			}
 
 			domain := match[3]
-			fmt.Println(domain)
+			fmt.Println("mention", domain)
 			if !isValidDomain(domain) && !strings.HasSuffix(domain, ".test") {
 				continue
 			}
@@ -63,7 +63,7 @@ func DetectFacets(text string) []*appbsky.RichtextFacet {
 				uri = "https://" + uri
 			}
 
-			fmt.Println(uri)
+			fmt.Println("uri", uri)
 
 			start := int64(indexes[index][0])
 			end := int64(indexes[index][1])

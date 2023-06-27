@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -31,6 +32,11 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	//why but why
+	slackevents.EventsAPIInnerEventMapping = map[slackevents.EventsAPIType]interface{}{
+		slackevents.ReactionAdded: slackevents.ReactionAddedEvent{},
 	}
 
 	fmt.Println(string(body))
@@ -126,6 +132,14 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
+	var imageFile bytes.Buffer
+	err = api.GetFile(image, &imageFile)
+	if err != nil {
+		fmt.Println(err.Error())
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	credsProvider := kvcreds.Provider()
 	bluesky, err := bluesky.NewClient(client, credsProvider)
 	if err != nil {
@@ -134,7 +148,7 @@ func eventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = bluesky.CreatePost(ctx, image)
+	err = bluesky.CreatePost(ctx, imageFile.Bytes())
 	if err != nil {
 		fmt.Println(err.Error())
 		http.Error(w, err.Error(), http.StatusInternalServerError)

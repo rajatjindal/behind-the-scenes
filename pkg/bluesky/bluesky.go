@@ -13,7 +13,6 @@ import (
 	"github.com/bluesky-social/indigo/lex/util"
 	"github.com/bluesky-social/indigo/xrpc"
 	"github.com/rajatjindal/pets-of-fermyon/pkg/creds"
-	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -56,8 +55,8 @@ func NewClient(client *http.Client, credsProvider creds.Provider) (*BlueSky, err
 	}, nil
 }
 
-func (b *BlueSky) CreatePost(ctx context.Context, imageURL string) error {
-	post, err := b.format(ctx, imageURL)
+func (b *BlueSky) CreatePost(ctx context.Context, imageFile []byte) error {
+	post, err := b.format(ctx, imageFile)
 	if err != nil {
 		return err
 	}
@@ -80,22 +79,21 @@ func getImage(ctx context.Context, url string) ([]byte, error) {
 	return io.ReadAll(resp.Body)
 }
 
-func (b *BlueSky) format(ctx context.Context, imageURL string) (*comatproto.RepoCreateRecord_Input, error) {
-	postMsg := "@rajatjindal.bsky.social"
+func (b *BlueSky) format(ctx context.Context, imageFile []byte) (*comatproto.RepoCreateRecord_Input, error) {
+	postMsg := "somemsg @rajatjindal.bsky.social is testing stuff here"
 	post := &appbsky.FeedPost{
 		Text:      postMsg,
 		CreatedAt: time.Now().Format(time.RFC3339),
 		Facets:    DetectFacets(postMsg),
 	}
 
-	og, err := b.getEmbedData(ctx, imageURL)
+	og, err := b.getEmbedData(ctx, imageFile)
 	if err != nil {
-		logrus.Warnf("failed to fetch embed data. error: %v", err)
+		return nil, err
 	}
 
-	if og != nil {
-		post.Embed = og
-	}
+	//add embed image info
+	post.Embed = og
 
 	return &comatproto.RepoCreateRecord_Input{
 		Collection: "app.bsky.feed.post",
@@ -110,13 +108,8 @@ func (b *BlueSky) Name() string {
 	return "bluesky"
 }
 
-func (b *BlueSky) getEmbedData(ctx context.Context, imageURL string) (*appbsky.FeedPost_Embed, error) {
-	blobBytes, err := getImage(ctx, imageURL)
-	if err != nil {
-		return nil, err
-	}
-
-	blob, err := comatproto.RepoUploadBlob(ctx, b.xrpcc, bytes.NewReader(blobBytes))
+func (b *BlueSky) getEmbedData(ctx context.Context, imageFile []byte) (*appbsky.FeedPost_Embed, error) {
+	blob, err := comatproto.RepoUploadBlob(ctx, b.xrpcc, bytes.NewReader(imageFile))
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +122,7 @@ func (b *BlueSky) getEmbedData(ctx context.Context, imageURL string) (*appbsky.F
 					Alt: "",
 					Image: &util.LexBlob{
 						Ref:      blob.Blob.Ref,
-						MimeType: "image/",
+						MimeType: "image/jpeg",
 					},
 				},
 			},
