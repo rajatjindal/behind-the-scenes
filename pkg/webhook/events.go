@@ -3,6 +3,8 @@ package webhook
 import (
 	"bytes"
 	"context"
+	"fmt"
+	"time"
 
 	"github.com/fermyon/spin/sdk/go/config"
 	kv "github.com/fermyon/spin/sdk/go/key_value"
@@ -63,6 +65,7 @@ func (s *Handler) handleReactionAddedEvent(ctx context.Context, event *slackeven
 		}
 	}
 
+	fmt.Printf("%s no of images %d\n", time.Now().Format(time.RFC3339), len(images))
 	imagesToEmbed := []bluesky.Image{}
 	for _, image := range images {
 		var imageFile bytes.Buffer
