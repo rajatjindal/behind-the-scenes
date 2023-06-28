@@ -3,8 +3,6 @@ package bluesky
 import (
 	"bytes"
 	"context"
-	"fmt"
-	"io"
 	"net/http"
 	"time"
 
@@ -22,6 +20,8 @@ const (
 type BlueSky struct {
 	xrpcc *xrpc.Client
 }
+
+type Image []byte
 
 func NewClient(client *http.Client, credsProvider creds.Provider) (*BlueSky, error) {
 	credentials, err := credsProvider.GetCredentials("bluesky")
@@ -55,8 +55,12 @@ func NewClient(client *http.Client, credsProvider creds.Provider) (*BlueSky, err
 	}, nil
 }
 
-func (b *BlueSky) CreatePost(ctx context.Context, imageFile []byte) error {
-	post, err := b.format(ctx, imageFile)
+func (b *BlueSky) Name() string {
+	return "bluesky"
+}
+
+func (b *BlueSky) CreatePost(ctx context.Context, images []Image) error {
+	post, err := b.format(ctx, images)
 	if err != nil {
 		return err
 	}
@@ -65,29 +69,15 @@ func (b *BlueSky) CreatePost(ctx context.Context, imageFile []byte) error {
 	return err
 }
 
-func getImage(ctx context.Context, url string) ([]byte, error) {
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("failed to download image")
-	}
-
-	return io.ReadAll(resp.Body)
-}
-
-func (b *BlueSky) format(ctx context.Context, imageFile []byte) (*comatproto.RepoCreateRecord_Input, error) {
-	postMsg := "somemsg @rajatjindal.bsky.social is testing stuff here"
+func (b *BlueSky) format(ctx context.Context, images []Image) (*comatproto.RepoCreateRecord_Input, error) {
+	postMsg := ""
 	post := &appbsky.FeedPost{
 		Text:      postMsg,
 		CreatedAt: time.Now().Format(time.RFC3339),
 		Facets:    DetectFacets(postMsg),
 	}
 
-	og, err := b.getEmbedData(ctx, imageFile)
+	og, err := b.getEmbedData(ctx, images)
 	if err != nil {
 		return nil, err
 	}
@@ -104,28 +94,28 @@ func (b *BlueSky) format(ctx context.Context, imageFile []byte) (*comatproto.Rep
 	}, nil
 }
 
-func (b *BlueSky) Name() string {
-	return "bluesky"
-}
+func (b *BlueSky) getEmbedData(ctx context.Context, images []Image) (*appbsky.FeedPost_Embed, error) {
+	embeddedImages := []*appbsky.EmbedImages_Image{}
 
-func (b *BlueSky) getEmbedData(ctx context.Context, imageFile []byte) (*appbsky.FeedPost_Embed, error) {
-	blob, err := comatproto.RepoUploadBlob(ctx, b.xrpcc, bytes.NewReader(imageFile))
-	if err != nil {
-		return nil, err
+	for _, image := range images {
+		blob, err := comatproto.RepoUploadBlob(ctx, b.xrpcc, bytes.NewReader(image))
+		if err != nil {
+			return nil, err
+		}
+
+		embeddedImages = append(embeddedImages, &appbsky.EmbedImages_Image{
+			Alt: "",
+			Image: &util.LexBlob{
+				Ref:      blob.Blob.Ref,
+				MimeType: "image/jpeg",
+			},
+		})
 	}
 
 	return &appbsky.FeedPost_Embed{
 		EmbedImages: &appbsky.EmbedImages{
 			LexiconTypeID: "",
-			Images: []*appbsky.EmbedImages_Image{
-				{
-					Alt: "",
-					Image: &util.LexBlob{
-						Ref:      blob.Blob.Ref,
-						MimeType: "image/jpeg",
-					},
-				},
-			},
+			Images:        embeddedImages,
 		},
 	}, nil
 }
