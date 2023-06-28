@@ -1,33 +1,34 @@
 package main
 
 import (
-	"io"
 	"net/http"
 
 	spinhttp "github.com/fermyon/spin/sdk/go/http"
+	"github.com/rajatjindal/pets-of-fermyon/pkg/bluesky"
+	"github.com/rajatjindal/pets-of-fermyon/pkg/creds/kvcreds"
 	"github.com/rajatjindal/pets-of-fermyon/pkg/slack"
-	"github.com/slack-go/slack/slackevents"
+	"github.com/rajatjindal/pets-of-fermyon/pkg/webhook"
 )
 
 func init() {
 	spinhttp.Handle(func(w http.ResponseWriter, r *http.Request) {
-		raw, err := io.ReadAll(r.Body)
+		credsProvider := kvcreds.Provider()
+		client := spinhttp.NewClient()
+
+		bsky, err := bluesky.NewClient(client, credsProvider)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		parentEvent, err := slack.ParseEvent(raw)
+		sclient, err := slack.NewClient(client, credsProvider)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			http.Error(w, "internal server error", http.StatusInternalServerError)
 			return
 		}
 
-		if parentEvent.Type == slackevents.URLVerification {
-			slack.URLVerificationHandler(w, raw)
-			return
-		}
-
+		handler := webhook.NewHandler(sclient, bsky)
+		handler.Handle(w, r)
 	})
 }
 

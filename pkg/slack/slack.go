@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/rajatjindal/pets-of-fermyon/pkg/creds"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 )
@@ -13,11 +14,21 @@ type Client struct {
 	*slack.Client
 }
 
-func New(httpclient *http.Client, token string) *Client {
+func NewClient(httpclient *http.Client, credsProvider creds.Provider) (*Client, error) {
+	creds, err := credsProvider.GetCredentials("slack")
+	if err != nil {
+		return nil, err
+	}
+
+	token := creds["token"]
+	if token == "" {
+		return nil, fmt.Errorf("slack token not found")
+	}
+
 	client := slack.New(token, slack.OptionHTTPClient(httpclient))
 	return &Client{
 		Client: client,
-	}
+	}, nil
 }
 
 func ParseEvent(raw []byte) (slackevents.EventsAPIEvent, error) {

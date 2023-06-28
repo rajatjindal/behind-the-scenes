@@ -16,7 +16,7 @@ const (
 	MaxImagesInPost     = 4
 )
 
-func (s *Service) handleCallbackEvent(ctx context.Context, outerEvent slackevents.EventsAPIEvent) error {
+func (s *Handler) handleCallbackEvent(ctx context.Context, outerEvent slackevents.EventsAPIEvent) error {
 	reactionAddedEvent, ok := outerEvent.InnerEvent.Data.(*slackevents.ReactionAddedEvent)
 	if !ok {
 		return nil
@@ -25,7 +25,7 @@ func (s *Service) handleCallbackEvent(ctx context.Context, outerEvent slackevent
 	return s.handleReactionAddedEvent(ctx, reactionAddedEvent)
 }
 
-func (s *Service) handleReactionAddedEvent(ctx context.Context, event *slackevents.ReactionAddedEvent) error {
+func (s *Handler) handleReactionAddedEvent(ctx context.Context, event *slackevents.ReactionAddedEvent) error {
 	ok, err := s.already_processed(event.Item.Timestamp)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func (s *Service) handleReactionAddedEvent(ctx context.Context, event *slackeven
 	return nil
 }
 
-func (s *Service) already_processed(key string) (bool, error) {
+func (s *Handler) already_processed(key string) (bool, error) {
 	store, err := kv.Open("default")
 	if err != nil {
 		return true, err
@@ -96,7 +96,7 @@ func (s *Service) already_processed(key string) (bool, error) {
 	return kv.Exists(store, key)
 }
 
-func (s *Service) set_already_processed(key string) error {
+func (s *Handler) set_already_processed(key string) error {
 	store, err := kv.Open("default")
 	if err != nil {
 		return err

@@ -10,21 +10,21 @@ import (
 	"github.com/slack-go/slack/slackevents"
 )
 
-type Service struct {
+type Handler struct {
 	slack   *slack.Client
 	bluesky *bluesky.BlueSky
 }
 
-func New(slack *slack.Client, bluesky *bluesky.BlueSky) *Service {
+func NewHandler(slack *slack.Client, bluesky *bluesky.BlueSky) *Handler {
 	// api := slack.New("xoxb-4430321508054-5503179271856-u2b6oMyPEhqnZunK0PBy1e32", slacksdk.OptionHTTPClient(httpclient))
 
-	return &Service{
+	return &Handler{
 		slack:   slack,
 		bluesky: bluesky,
 	}
 }
 
-func (s *Service) Handler(w http.ResponseWriter, r *http.Request) {
+func (s *Handler) Handle(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	raw, err := io.ReadAll(r.Body)
