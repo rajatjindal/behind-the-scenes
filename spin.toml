@@ -14,6 +14,7 @@ key_value_stores = ["default"]
 route = "/..."
 [component.config]
 trigger_on_emoji_code = "anger"
+allowed_channel = "C04D7GEDQ7K"
 [component.build]
 command = "tinygo build -target=wasi -gc=leaking -no-debug -o main.wasm main.go"
 watch = ["**/*.go", "go.mod"]

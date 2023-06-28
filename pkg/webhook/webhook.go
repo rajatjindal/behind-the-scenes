@@ -14,13 +14,44 @@ import (
 type Handler struct {
 	slack   *slack.Client
 	bluesky *bluesky.BlueSky
+
+	triggerEmojiCode   string
+	allowedChannelCode string
 }
 
-func NewHandler(slack *slack.Client, bluesky *bluesky.BlueSky) *Handler {
-	return &Handler{
+type Option func(h *Handler)
+
+func WithTriggerEmoji(emoji string) Option {
+	return func(h *Handler) {
+		h.triggerEmojiCode = emoji
+	}
+}
+
+func WithAllowedChannel(channel string) Option {
+	return func(h *Handler) {
+		h.allowedChannelCode = channel
+	}
+}
+
+func NewHandler(slack *slack.Client, bluesky *bluesky.BlueSky, options ...Option) (*Handler, error) {
+	h := &Handler{
 		slack:   slack,
 		bluesky: bluesky,
 	}
+
+	for _, option := range options {
+		option(h)
+	}
+
+	if h.allowedChannelCode == "" {
+		return nil, fmt.Errorf("allowed channel config is mandatory")
+	}
+
+	if h.triggerEmojiCode == "" {
+		return nil, fmt.Errorf("trigger-emoji config is mandatory")
+	}
+
+	return h, nil
 }
 
 func (s *Handler) Handle(w http.ResponseWriter, r *http.Request) {

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/fermyon/spin/sdk/go/config"
 	kv "github.com/fermyon/spin/sdk/go/key_value"
 	"github.com/rajatjindal/pets-of-fermyon/pkg/bluesky"
 	"github.com/slack-go/slack"
@@ -38,12 +37,12 @@ func (s *Handler) handleReactionAddedEvent(ctx context.Context, event *slackeven
 		return nil
 	}
 
-	triggerEmoji, err := config.Get(TriggerEmojiCodeKey)
-	if err != nil {
-		return err
+	// IMP: safegaurd to allow app in specific channels only
+	if event.Item.Channel != s.allowedChannelCode {
+		return nil
 	}
 
-	if event.Reaction != triggerEmoji {
+	if event.Reaction != s.triggerEmojiCode {
 		return nil
 	}
 
