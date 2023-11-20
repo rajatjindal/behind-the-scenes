@@ -3,7 +3,7 @@
     <div class="flex h-80 w-full">
       <div class="w-1/2 rounded-lg object-cover">
         <img 
-          :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[0]}`" 
+          :src="`/streaming-api/post/${postId}/image/${imageIds[0]}`" 
           id="1"
           v-on:click="changeClickedIndex(0)"
           class="h-full w-full" />
@@ -12,7 +12,7 @@
         <div class="h-1/2 rounded-lg object-cover">
           <img
             class="h-full w-full"
-            :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[1]}`"
+            :src="`/streaming-api/post/${postId}/image/${imageIds[1]}`"
             v-on:click="changeClickedIndex(1)"
             id="2"
           />
@@ -23,7 +23,7 @@
           <img
             class="h-full w-full"
             v-on:click="changeClickedIndex(2)"
-            :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[2]}`"
+            :src="`/streaming-api/post/${postId}/image/${imageIds[2]}`"
             id="3"
           />
         </div>

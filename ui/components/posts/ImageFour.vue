@@ -5,7 +5,7 @@
         <div class="h-1/2">
           <img
             class="h-full w-full rounded-lg "
-            :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[0]}`"
+            :src="`/streaming-api/post/${postId}/image/${imageIds[0]}`"
             v-on:click="changeClickedIndex(0)"
             id="1"
           />
@@ -15,7 +15,7 @@
         >
           <img
             class="rounded-lg h-full w-full"
-            :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[1]}`"
+            :src="`/streaming-api/post/${postId}/image/${imageIds[1]}`"
             v-on:click="changeClickedIndex(1)"
             id="2"
           />
@@ -26,7 +26,7 @@
         <div class="h-1/2 rounded-tr-xl">
           <img
             class="rounded-lg h-full w-full"
-            :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[2]}`"
+            :src="`/streaming-api/post/${postId}/image/${imageIds[2]}`"
             v-on:click="changeClickedIndex(2)"
             id="3"
           />
@@ -36,7 +36,7 @@
         >
           <img
             class="rounded-lg h-full w-full"
-            :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[3]}`"
+            :src="`/streaming-api/post/${postId}/image/${imageIds[3]}`"
             v-on:click="changeClickedIndex(3)"
             id="4"
           />

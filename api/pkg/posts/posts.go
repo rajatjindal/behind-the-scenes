@@ -3,6 +3,7 @@ package posts
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -19,6 +20,48 @@ type Post struct {
 	ImageIds  []string          `json:"imageIds"`
 	ImageMap  map[string]string `json:"imageMap,omitempty"`
 	Approved  bool              `json:"approved"`
+	Grapes    int               `json:"grapes"`
+	Hearts    int               `json:"hearts"`
+}
+
+func IncrementGrapesHandler(w http.ResponseWriter, r *http.Request) {
+	postId := mux.Vars(r)["postId"]
+	post, err := GetPost(postId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	post.Grapes = post.Grapes + 1
+
+	err = StorePost(post)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, "OK")
+}
+
+func IncrementHeartsHandler(w http.ResponseWriter, r *http.Request) {
+	postId := mux.Vars(r)["postId"]
+	post, err := GetPost(postId)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	post.Hearts = post.Hearts + 1
+
+	err = StorePost(post)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprint(w, "OK")
 }
 
 func GetPostsHandler(w http.ResponseWriter, r *http.Request) {

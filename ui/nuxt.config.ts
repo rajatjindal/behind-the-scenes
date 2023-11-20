@@ -26,7 +26,7 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     public: {
-      baseURL: 'https://fermyon-bts.usingspin.com/api'
+      baseURL: '/api'
     }
   },
   ssr: false,

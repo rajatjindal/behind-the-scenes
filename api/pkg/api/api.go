@@ -42,6 +42,8 @@ func (s *Server) addRoutes() error {
 
 	s.Router.Methods(http.MethodGet).Path("/api/posts").HandlerFunc(posts.GetPostsHandler)
 	s.Router.Methods(http.MethodGet).Path("/api/post/{postId}").HandlerFunc(posts.GetPostHandler)
+	s.Router.Methods(http.MethodPost).Path("/api/post/{postId}/grapes").HandlerFunc(posts.IncrementGrapesHandler)
+	s.Router.Methods(http.MethodPost).Path("/api/post/{postId}/hearts").HandlerFunc(posts.IncrementHeartsHandler)
 	s.Router.Methods(http.MethodGet).Path("/api/post/{postId}/image/{imageId:" + uuidRegex + "}").HandlerFunc(posts.GetImageHandler)
 	s.Router.Methods(http.MethodPost).Path("/api/slack").HandlerFunc(eventhandler.Handle)
 
