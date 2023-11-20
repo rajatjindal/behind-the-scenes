@@ -1,5 +1,5 @@
 <template>
-	<div class="w-full mx-auto w-full px-1 lg:px-0 border rounded-t-xl py-1" v-if="post">
+	<div class="w-full mx-auto w-full px-1 lg:px-0 border rounded-t-xl border-b-0" v-if="post">
 		<ImageOne v-if="post && post.imageIds.length === 1" :postId="post.timestamp" :imageIds="post.imageIds" />
 		<ImageTwo v-if="post && post.imageIds.length === 2" :postId="post.timestamp" :imageIds="post.imageIds" />
 		<ImageThree v-if="post && post.imageIds.length === 3" :postId="post.timestamp" :imageIds="post.imageIds" />

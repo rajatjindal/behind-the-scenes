@@ -25,6 +25,8 @@ pub struct Post {
     pub image_ids: Vec<String>,
     pub image_map: std::collections::HashMap<String, String>,
     pub approved: bool,
+    pub grapes: i64,
+    pub hearts: i64,
 }
 
 async fn get_and_stream_imagefile(req: IncomingRequest, res: ResponseOutparam) -> Result<()> {
