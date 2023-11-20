@@ -35,6 +35,6 @@
     "vue-moment": "^4.1.0",
     "vue-tsc": "^1.8.3",
     "webpack": "^5.0.0",
-    "@babel/traverse": "^7.23.3"
+    "@babel/traverse": "^7.23.2"
   }
 }
