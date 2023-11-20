@@ -65,7 +65,7 @@
             aria-hidden="true">&#8203;</span>
       <div class="inline-block my-auto rounded-lg text-left shadow-xl transform transition-all sm:align-middle sm:my-8 sm:max-w-lg sm:w-full">
         <div class="overflow-hidden rounded-2xl">
-          <img :src="`/api/post/${postId}/image/${imageIds[currentIndex]}`" />
+          <img :src="`/streaming-api/post/${postId}/image/${imageIds[currentIndex]}`" />
         </div>
       </div>
     </div>
