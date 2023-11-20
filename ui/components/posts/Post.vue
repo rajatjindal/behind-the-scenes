@@ -32,6 +32,10 @@ const loading = ref<Boolean>(false)
 const latency = ref<Number>(0)
 
 onBeforeMount(async () => {
+	await reloadPost()
+})
+
+const reloadPost = async function() {
 	loading.value = true
 	const startTime = new Date();
 
@@ -40,7 +44,7 @@ onBeforeMount(async () => {
 	loading.value = false
 	const endTime = new Date();
 	latency.value = Math.abs(endTime.getMilliseconds() - startTime.getMilliseconds());
-})
+}
 
 const withoutSignoff = function(input: string): string {
 	return input.replaceAll('/signoff', '')
@@ -48,10 +52,12 @@ const withoutSignoff = function(input: string): string {
 
 const incrementGrapes = async function() {
 	await myfetch(`/post/${props.postId}/grapes`, { method: 'POST'})
+	await reloadPost()
 }
 
 const incrementHearts = async function() {
 	await myfetch(`/post/${props.postId}/hearts`, { method: 'POST'})
+	await reloadPost()
 }
 
 </script>
