@@ -1,12 +1,13 @@
 <template>
 	<div class="w-full mx-auto w-full px-1 lg:px-0 border rounded-t-xl py-1" v-if="post">
-		<div class="border-b px-4 py-2">
-			<span class="text-gray-600 italic">{{ withoutSignoff(post.msg) }}</span>
+		<ImageOne v-if="post && post.imageIds.length === 1" :postId="post.timestamp" :imageIds="post.imageIds" />
+		<ImageTwo v-if="post && post.imageIds.length === 2" :postId="post.timestamp" :imageIds="post.imageIds" />
+		<ImageThree v-if="post && post.imageIds.length === 3" :postId="post.timestamp" :imageIds="post.imageIds" />
+		<ImageFour v-if="post && post.imageIds.length === 4" :postId="post.timestamp" :imageIds="post.imageIds" />
+		<div class="border-b px-4 py-2 flex">
+			<div class="flex"><Grapes class="w-8 h-8" fill="indigo" v-on:click="incrementGrapes"/><span class="ml-2 text-gray-400 flex items-center justify-between text-lg">{{ post.grapes || 0}}</span></div>
+			<div class="flex ml-5"><Heart class="w-8 h-8" fill="red" v-on:click="incrementHearts"/><span class="ml-2 text-gray-400 flex items-center justify-between text-lg">{{ post.hearts || 0}}</span></div>
 		</div>
-			<ImageOne v-if="post && post.imageIds.length === 1" :postId="post.timestamp" :imageIds="post.imageIds" />
-			<ImageTwo v-if="post && post.imageIds.length === 2" :postId="post.timestamp" :imageIds="post.imageIds" />
-			<ImageThree v-if="post && post.imageIds.length === 3" :postId="post.timestamp" :imageIds="post.imageIds" />
-			<ImageFour v-if="post && post.imageIds.length === 4" :postId="post.timestamp" :imageIds="post.imageIds" />
 	</div>
 </template>
   
@@ -21,6 +22,8 @@ declare interface Post {
 	msg:       string;
 	timestamp: string;
 	imageIds:    string[];
+	grapes: number,
+	hearts: number
 }
 
 
@@ -42,4 +45,13 @@ onBeforeMount(async () => {
 const withoutSignoff = function(input: string): string {
 	return input.replaceAll('/signoff', '')
 }
+
+const incrementGrapes = async function() {
+	await myfetch(`/post/${props.postId}/grapes`, { method: 'POST'})
+}
+
+const incrementHearts = async function() {
+	await myfetch(`/post/${props.postId}/hearts`, { method: 'POST'})
+}
+
 </script>

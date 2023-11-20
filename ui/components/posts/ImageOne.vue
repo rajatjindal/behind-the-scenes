@@ -1,7 +1,7 @@
 <template>
   <div class="p-1">
-    <img :src="`/streaming-api/post/${postId}/image/${imageIds[0]}`"
-      class="min-w-full h-80 object-cover"
+    <img :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[0]}`"
+      class="rounded-lg min-w-full object-scale-down h-90"
       v-on:click="changeClickedIndex(0)"
     />
   </div>

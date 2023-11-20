@@ -1,13 +1,13 @@
 <template>
   <div class="p-1">
     <div class="flex h-80 w-full">
-      <img class="w-1/2 object-cover"
-        :src="`/streaming-api/post/${postId}/image/${imageIds[0]}`"
+      <img class="rounded-lg  w-1/2 object-cover"
+        :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[0]}`"
         id="1"
         v-on:click="changeClickedIndex(0)"
       />
-      <img class="w-1/2 object-cover ml-0.5"
-        :src="`/streaming-api/post/${postId}/image/${imageIds[1]}`"
+      <img class="w-1/2 rounded-lg object-cover ml-0.5"
+        :src="`https://fermyon-bts.usingspin.com/streaming-api/post/${postId}/image/${imageIds[1]}`"
         id="2"
         v-on:click="changeClickedIndex(1)"
         v-on:closeModal="closeModal"
