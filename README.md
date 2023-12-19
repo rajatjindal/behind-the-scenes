@@ -43,3 +43,44 @@ FAQ
 ### can the app accidently share pictures from other channels?
 
 No, it will only receive events from channels where the app bot account has been added. We have also built a safegaurd in app to ignore events from all channels except the one configured in `spin.toml`
+
+## App Manifest
+
+```json
+{
+    "display_information": {
+        "name": "behind-the-scenes",
+        "description": "behind the scenes app",
+        "background_color": "#7012a3",
+        "long_description": ""
+    },
+    "features": {
+        "bot_user": {
+            "display_name": "behind-the-scenes",
+            "always_online": false
+        }
+    },
+    "oauth_config": {
+        "scopes": {
+            "bot": [
+                "files:read",
+                "channels:history",
+                "reactions:read",
+                "app_mentions:read"
+            ]
+        }
+    },
+    "settings": {
+        "event_subscriptions": {
+            "request_url": "https://webhook-url.example.com",
+            "bot_events": [
+                "app_mention",
+                "reaction_added"
+            ]
+        },
+        "org_deploy_enabled": false,
+        "socket_mode_enabled": false,
+        "token_rotation_enabled": false
+    }
+}
+```
