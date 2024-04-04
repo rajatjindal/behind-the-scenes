@@ -1,15 +1,18 @@
 use spin_sdk::http_component;
 
-use futures::StreamExt;
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use futures::SinkExt;
+use futures::StreamExt;
+use serde::{Deserialize, Serialize};
 use spin_sdk::{
+    http::{
+        self, Headers, IncomingRequest, IncomingResponse, Method, OutgoingRequest,
+        OutgoingResponse, ResponseOutparam, Scheme,
+    },
     key_value::Store,
     variables,
-    http::{self, Headers, IncomingRequest, OutgoingResponse, ResponseOutparam, OutgoingRequest, Method, Scheme, IncomingResponse}
 };
 use url::Url;
-use serde::{Deserialize, Serialize};
 
 /// Send an HTTP request and return the response.
 #[http_component]
@@ -30,11 +33,12 @@ pub struct Post {
 }
 
 async fn get_and_stream_imagefile(req: IncomingRequest, res: ResponseOutparam) -> Result<()> {
-    let (post_id, image_id) = get_post_id_and_image_id_from_url(req.path_with_query().unwrap_or_default());
-    
+    let (post_id, image_id) =
+        get_post_id_and_image_id_from_url(req.path_with_query().unwrap_or_default());
+
     let store = Store::open_default()?;
     let raw_post = store.get(format!("post:{post_id}").as_str())?.unwrap();
-    
+
     let post: Post = serde_json::from_slice(&raw_post)?;
     let url = post.image_map.get(image_id.as_str()).unwrap();
 
@@ -49,17 +53,26 @@ async fn get_and_stream_imagefile(req: IncomingRequest, res: ResponseOutparam) -
             scheme => Scheme::Other(scheme.into()),
         }),
         Some(url.authority()),
-        &Headers::new(&[(
-            "authorization".to_string(),
-            format!("Bearer {token}").as_bytes().to_vec(),
-        )]),
+        &Headers::new(&[
+            (
+                "authorization".to_string(),
+                format!("Bearer {token}").as_bytes().to_vec(),
+            ),
+            (
+                "accept-encoding".to_string(),
+                b"gzip, deflate, br, zstd".to_vec(),
+            ),
+        ]),
     );
 
     let response = http::send::<_, IncomingResponse>(outgoing_request).await?;
 
     let status = response.status();
     if status != 200 {
-        return Err(anyhow!(format!("failed to fetch image from slack. expected 200, got status code {}", status)));
+        return Err(anyhow!(format!(
+            "failed to fetch image from slack. expected 200, got status code {}",
+            status
+        )));
     }
 
     let mut stream = response.take_body_stream();
@@ -68,7 +81,12 @@ async fn get_and_stream_imagefile(req: IncomingRequest, res: ResponseOutparam) -
         status,
         &Headers::new(&[(
             "content-type".to_string(),
-            b"application/octet-stream".to_vec(),
+            response
+                .headers()
+                .get("content-type")
+                .first()
+                .unwrap()
+                .to_owned(),
         )]),
     );
 
@@ -88,5 +106,5 @@ fn get_post_id_and_image_id_from_url(path_and_query: String) -> (String, String)
     let post_id = parts[0];
     let image_id = parts[2];
 
-    return (post_id.to_string(), image_id.to_string())
+    return (post_id.to_string(), image_id.to_string());
 }
