@@ -1,8 +1,6 @@
 use spin_sdk::http_component;
 
 use anyhow::{anyhow, Result};
-use flate2::write::GzEncoder;
-use flate2::Compression;
 use futures::SinkExt;
 use futures::StreamExt;
 use serde::{Deserialize, Serialize};
@@ -14,7 +12,6 @@ use spin_sdk::{
     key_value::Store,
     variables,
 };
-use std::io::Write;
 use url::Url;
 
 /// Send an HTTP request and return the response.
@@ -82,29 +79,22 @@ async fn get_and_stream_imagefile(req: IncomingRequest, res: ResponseOutparam) -
 
     let out_response = OutgoingResponse::new(
         status,
-        &Headers::new(&[
-            ("content-encoding".to_string(), "gzip".as_bytes().to_vec()),
-            (
-                "content-type".to_string(),
-                response
-                    .headers()
-                    .get("content-type")
-                    .first()
-                    .unwrap()
-                    .to_owned(),
-            ),
-        ]),
+        &Headers::new(&[(
+            "content-type".to_string(),
+            response
+                .headers()
+                .get("content-type")
+                .first()
+                .unwrap()
+                .to_owned(),
+        )]),
     );
 
     let mut body = out_response.take_body();
     res.set(out_response);
 
     while let Some(chunk) = stream.next().await {
-        let chunk = chunk?;
-        let mut e = GzEncoder::new(Vec::new(), Compression::default());
-        e.write_all(&chunk).unwrap();
-        let x = &e.finish().unwrap().to_owned();
-        body.send(x.to_vec()).await?;
+        body.send(chunk?).await?;
     }
 
     Ok(())
