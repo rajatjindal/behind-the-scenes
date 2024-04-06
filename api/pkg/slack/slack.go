@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/fermyon/spin/sdk/go/v2/variables"
+	"github.com/fermyon/spin-go-sdk/variables"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/slackevents"
 )

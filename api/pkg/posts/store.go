@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	kv "github.com/fermyon/spin/sdk/go/v2/kv"
+	kv "github.com/fermyon/spin-go-sdk/kv"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )

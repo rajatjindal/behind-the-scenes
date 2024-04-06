@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	spinhttp "github.com/fermyon/spin/sdk/go/v2/http"
+	spinhttp "github.com/fermyon/spin-go-sdk/http"
 	"github.com/rajatjindal/behind-the-scenes/api/pkg/api"
 	"github.com/sirupsen/logrus"
 )

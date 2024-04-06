@@ -6,7 +6,7 @@ import (
 	"regexp"
 	"strings"
 
-	kv "github.com/fermyon/spin/sdk/go/v2/kv"
+	kv "github.com/fermyon/spin-go-sdk/kv"
 	"github.com/google/uuid"
 	"github.com/rajatjindal/behind-the-scenes/api/pkg/posts"
 	"github.com/sirupsen/logrus"
