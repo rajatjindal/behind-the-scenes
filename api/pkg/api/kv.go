@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"strings"
 
-	kv "github.com/fermyon/spin/sdk/go/v2/kv"
-	"github.com/fermyon/spin/sdk/go/v2/variables"
+	kv "github.com/fermyon/spin-go-sdk/kv"
+	"github.com/fermyon/spin-go-sdk/variables"
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
 )

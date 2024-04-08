@@ -1,0 +1,49 @@
+apiVersion: core.spinoperator.dev/v1alpha1
+kind: SpinApp
+metadata:
+  name: behind-the-scenes
+spec:
+  image: "ghcr.io/rajatjindal/behind-the-scenes:v0.4.0"
+  executor: containerd-shim-spin
+  replicas: 2
+  runtimeConfig:
+    loadFromSecret: behind-the-scenes-runtime-config
+  variables:
+    - name: allowed_channel
+      valueFrom:
+        secretKeyRef:
+          name: behind-the-scenes
+          key: allowed_channel
+          optional: false
+    - name: trigger_on_emoji_code
+      valueFrom:
+        secretKeyRef:
+          name: behind-the-scenes
+          key: trigger_on_emoji_code
+          optional: false
+    - name: slack_token
+      valueFrom:
+        secretKeyRef:
+          name: behind-the-scenes
+          key: slack_token
+          optional: false
+    - name: slack_signing_secret
+      valueFrom:
+        secretKeyRef:
+          name: behind-the-scenes
+          key: slack_signing_secret
+          optional: false
+    - name: runs_on
+      valueFrom:
+        secretKeyRef:
+          name: behind-the-scenes
+          key: runs_on
+          optional: false
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: behind-the-scenes-runtime-config
+type: Opaque
+data:
+  runtime-config.toml: W2tleV92YWx1ZV9zdG9yZS5kZWZhdWx0XQp0eXBlID0gInJlZGlzIgp1cmwgPSAicmVkaXM6Ly9yZWRpcy1zZXJ2aWNlLmRlZmF1bHQuc3ZjLmNsdXN0ZXIubG9jYWw6NjM3OSI=

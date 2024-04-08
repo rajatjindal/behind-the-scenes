@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/http/httputil"
 
-	spinhttp "github.com/fermyon/spin/sdk/go/v2/http"
-	"github.com/fermyon/spin/sdk/go/v2/variables"
+	spinhttp "github.com/fermyon/spin-go-sdk/http"
+	"github.com/fermyon/spin-go-sdk/variables"
 	"github.com/rajatjindal/behind-the-scenes/api/pkg/slack"
 	"github.com/sirupsen/logrus"
 	"github.com/slack-go/slack/slackevents"

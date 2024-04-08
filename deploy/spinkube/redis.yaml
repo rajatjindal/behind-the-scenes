@@ -1,0 +1,54 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis
+  template:
+    metadata:
+      labels:
+        name: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis:5.0.4
+        command:
+          - redis-server
+        args:
+          - --save
+          - "60"
+          - "1"
+        env:
+        - name: MASTER
+          value: "true"
+        ports:
+        - containerPort: 6379
+        resources:
+          limits:
+            cpu: "0.1"
+        volumeMounts:
+        - mountPath: /data
+          name: data
+      ## this volume require a dir /root/bts-redis-datavolume on node running the pod
+      volumes:
+        - name: data
+          hostPath:
+            path: /root/bts-redis-datavolume
+
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: redis-service
+spec:
+  selector:
+    name: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: 6379
+

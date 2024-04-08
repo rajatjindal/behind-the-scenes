@@ -3,9 +3,11 @@ package api
 import (
 	"net/http"
 
+	"github.com/fermyon/spin-go-sdk/variables"
 	"github.com/gorilla/mux"
 	"github.com/rajatjindal/behind-the-scenes/api/pkg/posts"
 	"github.com/rajatjindal/behind-the-scenes/api/pkg/webhook"
+	"github.com/sirupsen/logrus"
 )
 
 // Server is api server
@@ -39,6 +41,17 @@ func (s *Server) addRoutes() error {
 	if err != nil {
 		return err
 	}
+
+	s.Router.Methods(http.MethodGet).Path("/api/runs-on").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		runsOn, err := variables.Get("runs_on")
+		if err != nil {
+			logrus.Errorf("error marshalling %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		w.Write([]byte(runsOn))
+	})
 
 	s.Router.Methods(http.MethodGet).Path("/api/posts").HandlerFunc(posts.GetPostsHandler)
 	s.Router.Methods(http.MethodGet).Path("/api/post/{postId}").HandlerFunc(posts.GetPostHandler)
