@@ -33,7 +33,12 @@ spec:
           name: behind-the-scenes
           key: slack_signing_secret
           optional: false
-
+    - name: runs_on
+      valueFrom:
+        secretKeyRef:
+          name: behind-the-scenes
+          key: runs_on
+          optional: false
 ---
 apiVersion: v1
 kind: Secret

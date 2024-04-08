@@ -1,5 +1,6 @@
 #!/bin/bash
 
+SPIN_VARIABLE_RUNS_ON=spin \
 SPIN_VARIABLE_ALLOWED_CHANNEL=slack-channel-id \
 SPIN_VARIABLE_TRIGGER_ON_EMOJI_CODE=shipit \
 SPIN_VARIABLE_SLACK_TOKEN=xoxb-slack-token \

@@ -61,4 +61,5 @@ jobs:
             trigger_on_emoji_code=slats
             slack_token=${{ secrets.SLACK_TOKEN }}
             slack_signing_secret=${{ secrets.SLACK_SIGNING_SECRET }}
+            runs_on=fermyon
 

@@ -40,6 +40,16 @@ func (s *Server) addRoutes() error {
 		return err
 	}
 
+	s.Router.Methods(http.MethodGet).Path("/api/runs-on").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		runsOn, err := variables.Get("runs_on")
+		if err != nil {
+			logrus.Errorf("error marshalling %v", err)
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+		}
+
+		w.Write([]byte(runsOn))
+	})
+
 	s.Router.Methods(http.MethodGet).Path("/api/posts").HandlerFunc(posts.GetPostsHandler)
 	s.Router.Methods(http.MethodGet).Path("/api/post/{postId}").HandlerFunc(posts.GetPostHandler)
 	s.Router.Methods(http.MethodPost).Path("/api/post/{postId}/grapes").HandlerFunc(posts.IncrementGrapesHandler)
