@@ -3,7 +3,7 @@ kind: SpinApp
 metadata:
   name: behind-the-scenes
 spec:
-  image: "ghcr.io/rajatjindal/behind-the-scenes:v0.1.0"
+  image: "ghcr.io/rajatjindal/behind-the-scenes:v0.4.0"
   executor: containerd-shim-spin
   replicas: 2
   runtimeConfig:

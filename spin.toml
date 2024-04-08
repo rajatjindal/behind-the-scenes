@@ -11,6 +11,7 @@ allowed_channel = { required = true, secret = true }
 trigger_on_emoji_code = { default = "shipit" }
 slack_token = { required = true, secret = true }
 slack_signing_secret = { required = true, secret = true }
+runs_on = { required = true }
 
 ### configure component for UI
 [[trigger.http]]
@@ -39,6 +40,7 @@ trigger_on_emoji_code = "{{ trigger_on_emoji_code }}"
 allowed_channel = "{{ allowed_channel }}"
 slack_token = "{{ slack_token }}"
 slack_signing_secret = "{{ slack_signing_secret }}"
+runs_on = "{{ runs_on }}"
 [component.behind-the-scenes.build]
 command = "cd api && tinygo build -target=wasi -tags=purego -no-debug -o main.wasm main.go && cd -"
 watch = ["**/*.go", "go.mod"]
